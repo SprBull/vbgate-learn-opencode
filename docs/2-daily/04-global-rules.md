@@ -330,6 +330,12 @@ AI 会分析：
 - Glob 模式：`.cursor/rules/*.md`
 - URL：`https://example.com/rules.md`
 
+::: warning ⚡ 生效时机不同
+通过 `instructions` 引用规则文件的**路径列表**是在会话启动时加载的。如果你在 `opencode.json` 中新增或修改了 `instructions` 条目，需要**开启新会话**才能生效。
+
+但已加载路径的**文件内容**是热加载的——修改规则文件本身，下一条消息就会生效。
+:::
+
 ::: tip 💡 兼容其他工具
 如果你之前用过 Cursor，可以直接引用 `.cursor/rules/*.md`，规则直接复用。
 :::
