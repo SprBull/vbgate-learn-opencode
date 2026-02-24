@@ -407,7 +407,7 @@ opencode auth login
 | 现象 | 原因 | 解决 |
 |---|---|---|
 | 登录后在另一个终端里 `echo $COMPANY_AI_TOKEN` 没有值 | well-known 的 token 是在 OpenCode 启动时写入当前进程的 `process.env`，不会写进你的 `.zshrc/.bashrc` | 不影响 OpenCode 调用模型；用 `opencode run -m corp-gateway/...` 验证即可；如果你确实需要在 shell 里看到，得自己 `export COMPANY_AI_TOKEN=...` |
-| `opencode auth login` 直接报 404/500 | `/.well-known/opencode` 不可达 | 先用浏览器/curl 验证 URL 可访问 |
+| `opencode auth login` 直接报 404/2000+ | `/.well-known/opencode` 不可达 | 先用浏览器/curl 验证 URL 可访问 |
 | 提示 `Failed` / 没有 `Logged into ...` | `auth.command` 退出码非 0 | 确保命令能在当前机器运行，且 stdout 输出 Token |
 | OpenCode 启动时报错并退出 | 远程 well-known 拉取失败会抛错，中断配置加载 | 先保证 `<url>/.well-known/opencode` 可达；排障时可用 `opencode auth logout` 移除这条 URL 凭据再启动 |
 | `opencode auth login` 找不到你们的 provider | 你们的 provider 不在 models.dev 列表 | 选 `Other`，手动输入 provider id（例如 `corp-gateway`） |

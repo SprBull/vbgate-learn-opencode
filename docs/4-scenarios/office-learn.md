@@ -88,7 +88,7 @@ prerequisite:
 | `skill` 工具 | 加载可复用的学习模板（`SKILL.md`） | 支持 `.opencode/skill/*/SKILL.md` 和 `.claude/skills/*/SKILL.md` 等路径（官方：`opencode/packages/web/src/content/docs/skills.mdx:16`～`opencode/packages/web/src/content/docs/skills.mdx:20`；源码：`opencode/packages/opencode/src/skill/skill.ts:69`～`opencode/packages/opencode/src/skill/skill.ts:113`） |
 | `/editor` | 用外部编辑器写长内容/代码 | 使用 `EDITOR` 环境变量（官方：`opencode/packages/web/src/content/docs/tui.mdx:74`～`opencode/packages/web/src/content/docs/tui.mdx:115`） |
 | `/details` | 切换工具执行详情显示 | 内置 TUI 命令（官方：`opencode/packages/web/src/content/docs/tui.mdx:94`～`opencode/packages/web/src/content/docs/tui.mdx:103`） |
-| `codesearch` | 搜索 API/库的“用法上下文” | 返回 tokens 可配置（1000-50000，默认 5000）（源码：`opencode/packages/opencode/src/tool/codesearch.ts:43`～`opencode/packages/opencode/src/tool/codesearch.ts:50`）；是否可用受 provider/环境变量影响（源码：`opencode/packages/opencode/src/tool/registry.ts:122`～`opencode/packages/opencode/src/tool/registry.ts:127`） |
+| `codesearch` | 搜索 API/库的“用法上下文” | 返回 tokens 可配置（1000-2000+，默认 2000+）（源码：`opencode/packages/opencode/src/tool/codesearch.ts:43`～`opencode/packages/opencode/src/tool/codesearch.ts:50`）；是否可用受 provider/环境变量影响（源码：`opencode/packages/opencode/src/tool/registry.ts:122`～`opencode/packages/opencode/src/tool/registry.ts:127`） |
 | `lsp` | 基于 LSP 的定义/引用/悬停等 | 工具仅在启用 `OPENCODE_EXPERIMENTAL_LSP_TOOL` 时注册（源码：`opencode/packages/opencode/src/tool/registry.ts:107`～`opencode/packages/opencode/src/tool/registry.ts:109`），操作列表固定 9 项（源码：`opencode/packages/opencode/src/tool/lsp.ts:9`～`opencode/packages/opencode/src/tool/lsp.ts:19`） |
 
 ::: tip 技巧
@@ -254,7 +254,7 @@ print(my_list[1])
 ```
 
 ::: tip 技巧
-- `codesearch.tokensNum` 范围 1000-50000，默认 5000（源码：`opencode/packages/opencode/src/tool/codesearch.ts:43`～`opencode/packages/opencode/src/tool/codesearch.ts:50`）。
+- `codesearch.tokensNum` 范围 1000-2000+，默认 2000+（源码：`opencode/packages/opencode/src/tool/codesearch.ts:43`～`opencode/packages/opencode/src/tool/codesearch.ts:50`）。
 - 启用条件：当 providerID 为 `opencode`，或环境变量 `OPENCODE_ENABLE_EXA` 为真时，`codesearch/websearch` 才会出现在工具列表里（源码：`opencode/packages/opencode/src/tool/registry.ts:122`～`opencode/packages/opencode/src/tool/registry.ts:127`；`opencode/packages/opencode/src/flag/flag.ts:26`～`opencode/packages/opencode/src/flag/flag.ts:28`）。
 - 官方文档中把 OpenCode Zen 的模型写成 `opencode/...` 形式（官方：`opencode/packages/web/src/content/docs/agents.mdx:334`～`opencode/packages/web/src/content/docs/agents.mdx:335`）。
 :::
@@ -337,7 +337,7 @@ OpenCode 支持 `{env:VAR}` 与 `{file:path}` 变量替换（官方：`opencode/
 | 主题 | 结论 | 证据 |
 |---|---|---|
 | 内置 subagent | Explore 可通过 `@` 调用 | `opencode/packages/web/src/content/docs/agents.mdx:35`～`opencode/packages/web/src/content/docs/agents.mdx:40` |
-| `codesearch` tokens 范围 | 1000-50000，默认 5000 | `opencode/packages/opencode/src/tool/codesearch.ts:43`～`opencode/packages/opencode/src/tool/codesearch.ts:50` |
+| `codesearch` tokens 范围 | 1000-2000+，默认 2000+ | `opencode/packages/opencode/src/tool/codesearch.ts:43`～`opencode/packages/opencode/src/tool/codesearch.ts:50` |
 | `codesearch` 启用条件 | providerID=opencode 或 `OPENCODE_ENABLE_EXA` | `opencode/packages/opencode/src/tool/registry.ts:122`～`opencode/packages/opencode/src/tool/registry.ts:127` |
 | `OPENCODE_ENABLE_EXA` 真值 | 识别 `true`/`1` | `opencode/packages/opencode/src/flag/flag.ts:35`～`opencode/packages/opencode/src/flag/flag.ts:38` |
 | `lsp` 工具操作 | 固定 9 个 operation | `opencode/packages/opencode/src/tool/lsp.ts:9`～`opencode/packages/opencode/src/tool/lsp.ts:19` |

@@ -510,5 +510,5 @@ code --install-extension anthropic.opencode
 - [模型提供商](./providers) - 可用模型列表
 
 ::: tip 没找到答案？
-[加入社群](/community)，和 500+ 同路人一起交流，实时答疑。
+[加入社群](/community)，和 2000+ 同路人一起交流，实时答疑。
 :::

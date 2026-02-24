@@ -1,14 +1,40 @@
 import { defineConfig } from 'vitepress'
 
+// 页面路径判断：是否为英文版
+const isEnglishPage = (relativePath: string) => relativePath.startsWith('en/')
+
+// 不需要 hreflang 的页面（内容不对等）
+const noHreflangPages = [
+  'en/4-scenarios/writer-wechat.md',      // stub: WeChat
+  'en/4-scenarios/writer-xiaohongshu.md', // stub: Xiaohongshu
+  'en/4-scenarios/writer-webnovel.md',    // stub: Web Novel
+  'en/4-scenarios/writer-blog.md',        // new: English only
+  'en/4-scenarios/writer-social.md',      // new: English only
+  'en/community.md',                       // rewritten: different content
+  '4-scenarios/writer-wechat.md',
+  '4-scenarios/writer-xiaohongshu.md',
+  '4-scenarios/writer-webnovel.md',
+  'community.md',
+]
+
 export default defineConfig({
   title: 'OpenCode 中文教程',
   titleTemplate: ':title - AI 编程助手实战指南',
   description: 'OpenCode 是终端 AI 编程助手，本教程从零基础到进阶，教你用 AI 写代码、改 Bug、自动化办公。支持智谱、DeepSeek 等国产模型，完全免费开源。',
   lang: 'zh-CN',
 
-  // 站点地图
+  // 站点地图（多语言支持）
   sitemap: {
     hostname: 'https://learnopencode.com',
+    transformItems(items) {
+      return items.map(item => ({
+        ...item,
+        links: [
+          { lang: 'zh-CN', url: item.url.replace(/^\/en\//, '/') },
+          { lang: 'en', url: item.url.startsWith('/en/') ? item.url : `/en${item.url}` }
+        ]
+      }))
+    }
   },
 
   head: [
@@ -34,7 +60,7 @@ export default defineConfig({
     ['meta', { name: 'twitter:description', content: 'OpenCode 是终端 AI 编程助手，本教程从零基础到进阶，教你用 AI 写代码、改 Bug、自动化办公。' }],
     ['meta', { name: 'twitter:image', content: 'https://learnopencode.com/og-image.png' }],
 
-    // 结构化数据 JSON-LD
+    // 结构化数据 JSON-LD（中文版）
     ['script', { type: 'application/ld+json' }, JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebSite",
@@ -70,27 +96,67 @@ export default defineConfig({
       gtag('config', 'G-1R6TQGK2HZ');
     `],
 
-    // Baidu Analytics
-    ['script', {}, `
-      var _hmt = _hmt || [];
-      (function() {
-        var hm = document.createElement("script");
-        hm.src = "https://hm.baidu.com/hm.js?3a4b4bd517386d99b8badbdd25bafb7b";
-        var s = document.getElementsByTagName("script")[0];
-        s.parentNode.insertBefore(hm, s);
-      })();
-    `],
+    // Baidu Analytics（仅中文版加载，通过 transformHead 控制）
   ],
 
   transformHead({ pageData }) {
-    const canonicalUrl = `https://learnopencode.com/${pageData.relativePath}`
+    const head: any[] = []
+    const relativePath = pageData.relativePath
+    
+    // Canonical URL
+    const canonicalUrl = `https://learnopencode.com/${relativePath}`
       .replace(/index\.md$/, '')
       .replace(/\.md$/, '.html')
+    
+    head.push(['link', { rel: 'canonical', href: canonicalUrl }])
+    head.push(['meta', { property: 'og:url', content: canonicalUrl }])
 
-    return [
-      ['link', { rel: 'canonical', href: canonicalUrl }],
-      ['meta', { property: 'og:url', content: canonicalUrl }],
-    ]
+    // 英文版特殊处理
+    if (isEnglishPage(relativePath)) {
+      // 英文版 OG locale
+      head.push(['meta', { property: 'og:locale', content: 'en_US' }])
+      
+      // 英文版 JSON-LD
+      head.push(['script', { type: 'application/ld+json' }, JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "OpenCode Tutorial",
+        "alternateName": "OpenCode Practical Guide",
+        "url": "https://learnopencode.com/en/",
+        "description": "OpenCode is a terminal-based AI coding assistant. This tutorial covers everything from basics to advanced usage.",
+        "inLanguage": "en-US",
+        "publisher": {
+          "@type": "Organization",
+          "name": "OpenCode Community",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://learnopencode.com/logo.svg"
+          }
+        }
+      })])
+
+      // 英文版不加载百度统计（通过客户端脚本控制）
+      head.push(['script', {}, `
+        (function() {
+          // Disable Baidu Analytics for English pages
+          window._hmt = window._hmt || [];
+          window._hmt.push(['_setAutoPageview', false]);
+        })();
+      `])
+    }
+
+    // hreflang 标签（不对等的页面不加）
+    if (!noHreflangPages.includes(relativePath)) {
+      const basePath = relativePath.replace(/^en\//, '').replace(/\.md$/, '')
+      const zhUrl = `https://learnopencode.com/${basePath}`
+      const enUrl = `https://learnopencode.com/en/${basePath}`
+      
+      head.push(['link', { rel: 'alternate', hreflang: 'zh-CN', href: zhUrl }])
+      head.push(['link', { rel: 'alternate', hreflang: 'en', href: enUrl }])
+      head.push(['link', { rel: 'alternate', hreflang: 'x-default', href: zhUrl }])
+    }
+
+    return head
   },
 
   markdown: {
@@ -453,6 +519,16 @@ export default defineConfig({
               },
             },
           },
+          en: {
+            translations: {
+              button: { buttonText: 'Search', buttonAriaLabel: 'Search' },
+              modal: {
+                noResultsText: 'No results found',
+                resetButtonTitle: 'Clear search query',
+                footer: { selectText: 'Select', navigateText: 'Navigate' },
+              },
+            },
+          },
         },
       },
     },
@@ -478,7 +554,7 @@ export default defineConfig({
     },
   },
 
-  // 多语言预留
+  // 多语言配置
   locales: {
     root: {
       label: '简体中文',
@@ -501,8 +577,61 @@ export default defineConfig({
             text: '🚀 Quick Start',
             collapsed: false,
             items: [
-               { text: 'Phase Guide', link: '/en/1-start/' },
-               // Add more items as pages are translated
+              { text: 'Phase Guide', link: '/en/1-start/' },
+              { text: '1.1 What is OpenCode', link: '/en/1-start/01-intro' },
+              {
+                text: '1.2 Installation',
+                collapsed: true,
+                items: [
+                  { text: 'Install in 5 Minutes', link: '/en/1-start/02-install' },
+                  { text: 'Alternative Methods', link: '/en/1-start/02a-install-alternatives' },
+                  { text: 'Troubleshooting', link: '/en/1-start/02b-install-troubleshoot' },
+                ]
+              },
+              { text: '1.3 Network Config', link: '/en/1-start/03-network' },
+              {
+                text: '1.4 Connect Models',
+                collapsed: true,
+                items: [
+                  { text: 'Overview: First Chat', link: '/en/1-start/04-connect' },
+                  { text: 'Free Models (OpenCode Zen)', link: '/en/1-start/04a-free-models' },
+                  { text: '[Recommended] Claude', link: '/en/1-start/04e-claude' },
+                  { text: 'Claude Code Relay', link: '/en/1-start/04f-claudecode-relay' },
+                  { text: 'OpenAI (GPT / Codex)', link: '/en/1-start/04h-openai' },
+                  { text: 'Ollama (Local)', link: '/en/1-start/04g-ollama' },
+                  { text: 'DeepSeek', link: '/en/1-start/04b-deepseek' },
+                  { text: 'GLM (Zhipu)', link: '/en/1-start/04c-zhipu' },
+                  { text: 'MiniMax', link: '/en/1-start/04d-minimax' },
+                  { text: 'Qwen (Alibaba)', link: '/en/1-start/04i-alibaba' },
+                  { text: 'GitHub Copilot', link: '/en/1-start/04j-github-copilot' },
+                ]
+              },
+              { text: '1.5 Auto Update', link: '/en/1-start/05-update' },
+            ]
+          },
+          {
+            text: '💪 Daily Usage',
+            collapsed: false,
+            items: [
+              { text: 'Phase Guide', link: '/en/2-daily/' },
+              { text: '2.1 Interface & Controls', link: '/en/2-daily/01-interface' },
+              { text: '2.1b Copy & Paste', link: '/en/2-daily/01b-copy-paste' },
+              { text: '2.1c AI Basic Tools', link: '/en/2-daily/01c-basic-tools' },
+              { text: '2.2 Session Management', link: '/en/2-daily/02-sessions' },
+              { text: '2.3 Keyboard Shortcuts', link: '/en/2-daily/03-shortcuts' },
+              { text: '2.4 Global Rules', link: '/en/2-daily/04-global-rules' },
+              { text: '2.5 Environment Mgmt', link: '/en/2-daily/05-env-management' },
+              { text: '2.6 Git Basics', link: '/en/2-daily/06-git-basics' },
+            ]
+          },
+          {
+            text: '⚡ Efficient Workflow',
+            collapsed: false,
+            items: [
+              { text: 'Phase Guide', link: '/en/3-workflow/' },
+              { text: '3.1 Plan vs Build', link: '/en/3-workflow/01-plan-build' },
+              { text: '3.2 Understanding Agents', link: '/en/3-workflow/02-agents' },
+              { text: '3.3 Project Init', link: '/en/3-workflow/03-init' },
             ]
           },
           {
@@ -510,8 +639,242 @@ export default defineConfig({
             collapsed: false,
             items: [
               { text: 'Choose Your Path', link: '/en/4-scenarios/' },
+              {
+                text: '✍️ Content Creation',
+                collapsed: false,
+                items: [
+                  { text: 'A1 Writing Workflow', link: '/en/4-scenarios/writer-workflow' },
+                  { text: 'A2 Blog & Newsletter', link: '/en/4-scenarios/writer-blog' },
+                  { text: 'A3 Social Content', link: '/en/4-scenarios/writer-social' },
+                  { text: 'A4 Marketing Copy', link: '/en/4-scenarios/writer-copywriting' },
+                  { text: 'A5 Translation', link: '/en/4-scenarios/writer-translate' },
+                  { text: 'A6 Novel Writing', link: '/en/4-scenarios/writer-novel' },
+                  { text: 'A7 Script Writing', link: '/en/4-scenarios/writer-script' },
+                  { text: 'A8 Web Novel (CN Only)', link: '/en/4-scenarios/writer-webnovel' },
+                  { text: 'A9 Writing Station', link: '/en/4-scenarios/writer-workstation' },
+                ]
+              },
+              {
+                text: '💻 For Developers',
+                collapsed: false,
+                items: [
+                  { text: 'B1 Daily Coding', link: '/en/4-scenarios/coder-daily' },
+                  { text: 'B2 Refactor & Test', link: '/en/4-scenarios/coder-refactor' },
+                  { text: 'B3 Docs & Git', link: '/en/4-scenarios/coder-docs-git' },
+                  { text: 'B4 CI/CD Integration', link: '/en/4-scenarios/coder-cicd' },
+                  { text: 'B5 Custom Agents', link: '/en/4-scenarios/coder-agents' },
+                  { text: 'B6 Air-gapped Deploy', link: '/en/4-scenarios/coder-intranet' },
+                ]
+              },
+              {
+                text: '📊 Productivity',
+                collapsed: false,
+                items: [
+                  { text: 'C1 File Management', link: '/en/4-scenarios/office-files' },
+                  { text: 'C2 Data Processing', link: '/en/4-scenarios/office-data' },
+                  { text: 'C3 Learn Coding w/ AI', link: '/en/4-scenarios/office-learn' },
+                  { text: 'C4 Automation', link: '/en/4-scenarios/office-automation' },
+                ]
+              },
             ]
-          }
+          },
+          {
+            text: '🔧 Advanced Guide',
+            collapsed: false,
+            items: [
+              { text: 'Phase Guide', link: '/en/5-advanced/' },
+              { 
+                text: '5.1 Configuration',
+                collapsed: true,
+                items: [
+                  { text: '5.1a Basics', link: '/en/5-advanced/01a-config-basics' },
+                  { text: '5.1b Advanced', link: '/en/5-advanced/01b-config-advanced' },
+                ]
+              },
+              { 
+                text: '5.2 Agent System',
+                collapsed: true,
+                items: [
+                  { text: '5.2a Quickstart', link: '/en/5-advanced/02a-agent-quickstart' },
+                  { text: '5.2b Patterns', link: '/en/5-advanced/02b-agent-patterns' },
+                  { text: '5.2c Permissions', link: '/en/5-advanced/02c-agent-permissions' },
+                  { text: '5.2d Advanced', link: '/en/5-advanced/02d-agent-advanced' },
+                ]
+              },
+              { 
+                text: '5.3 Skills',
+                collapsed: true,
+                items: [
+                  { text: '5.3a Basics', link: '/en/5-advanced/03a-skills-basics' },
+                  { text: '5.3b Advanced', link: '/en/5-advanced/03b-skills-advanced' },
+                  { text: '5.3c Patterns', link: '/en/5-advanced/03c-skills-patterns' },
+                ]
+              },
+              { text: '5.4 Slash Commands', link: '/en/5-advanced/04-commands' },
+              { text: '5.5 Permissions', link: '/en/5-advanced/05-permissions' },
+              { 
+                text: '5.6 Themes & Keys',
+                collapsed: true,
+                items: [
+                  { text: '5.6a Themes', link: '/en/5-advanced/06a-themes' },
+                  { text: '5.6b Keybinds', link: '/en/5-advanced/06b-keybinds' },
+                ]
+              },
+              { text: '5.7 MCP Extension', 
+                collapsed: true,
+                items: [
+                  { text: '5.7a Basics', link: '/en/5-advanced/07a-mcp-basics' },
+                  { text: '5.7b Advanced', link: '/en/5-advanced/07b-mcp-advanced' },
+                ]
+              },
+              {
+                text: '5.8 IDE Integration',
+                collapsed: true,
+                items: [
+                  { text: '5.8a VS Code', link: '/en/5-advanced/08a-ide-vscode' },
+                  { text: '5.8b ACP Protocol', link: '/en/5-advanced/08b-acp' },
+                ]
+              },
+              { 
+                text: '5.9 Remote Mode',
+                collapsed: true,
+                items: [
+                  { text: '5.9a Basics', link: '/en/5-advanced/09a-remote-basics' },
+                  { text: '5.9b API Ref', link: '/en/5-advanced/09b-remote-api' },
+                ]
+              },
+              { 
+                text: '5.10 SDK Dev',
+                collapsed: true,
+                items: [
+                  { text: '5.10a Basics', link: '/en/5-advanced/10a-sdk-basics' },
+                  { text: '5.10b API Ref', link: '/en/5-advanced/10b-sdk-reference' },
+                ]
+              },
+              { text: '5.11 Enterprise', link: '/en/5-advanced/11-enterprise' },
+              { text: '5.11a Enterprise Auth', link: '/en/5-advanced/11a-enterprise-auth' },
+              { 
+                text: '5.12 Plugins',
+                collapsed: true,
+                items: [
+                  { text: '5.12a Basics', link: '/en/5-advanced/12a-plugins-basics' },
+                  { text: '5.12b Advanced', link: '/en/5-advanced/12b-plugins-advanced' },
+                  { text: '5.12c Hooks', link: '/en/5-advanced/12c-hooks' },
+                ]
+              },
+              { text: '5.13 Custom Tools', link: '/en/5-advanced/13-custom-tools' },
+              { text: '5.14 GitHub Integration', link: '/en/5-advanced/14-github' },
+              { text: '5.15 GitLab Integration', link: '/en/5-advanced/15-gitlab' },
+              { text: '5.16 Session Sharing', link: '/en/5-advanced/16-share' },
+              { text: '5.17 Built-in Tools', link: '/en/5-advanced/17-tools' },
+              { text: '5.18 Formatters', link: '/en/5-advanced/18-formatters' },
+              { text: '5.19 LSP Intelligence', link: '/en/5-advanced/19-lsp' },
+              { text: '5.20 Context Compaction', link: '/en/5-advanced/20-compaction' },
+              { text: '5.21 Thinking Depth', link: '/en/5-advanced/21-thinking-depth' },
+              { text: '5.22 Debugging', link: '/en/5-advanced/22-debugging' },
+              { text: '5.23 Web Search', link: '/en/5-advanced/23-web-search' },
+              { text: '5.24 CLI Automation', link: '/en/5-advanced/24-cli-automation' },
+            ]
+          },
+          {
+            text: '📚 Quick Reference',
+            collapsed: false,
+            items: [
+              { text: 'Reference Overview', link: '/en/appendix/' },
+              { text: 'A. Keyboard Shortcuts', link: '/en/appendix/keybinds' },
+              { text: 'B. Slash Commands', link: '/en/appendix/commands' },
+              { text: 'C. CLI Reference', link: '/en/appendix/cli' },
+              { text: 'D. Config Options', link: '/en/appendix/config-ref' },
+              { text: 'E. Model Providers', link: '/en/appendix/providers' },
+              { text: 'F. Prompt Library', link: '/en/appendix/prompts' },
+              { text: 'G. FAQ', link: '/en/appendix/faq' },
+              { text: 'H. Troubleshooting', link: '/en/appendix/troubleshoot' },
+              { text: 'I. Ecosystem', link: '/en/appendix/ecosystem' },
+              { text: 'J. Migration Guide', link: '/en/appendix/migration' },
+              { text: 'K. OpenCode Zen', link: '/en/appendix/zen' },
+              { text: 'L. Experimental', link: '/en/appendix/experimental-features' },
+            ]
+          },
+          {
+            text: '📝 Changelog',
+            collapsed: true,
+            items: [
+              { text: 'Changelog', link: '/en/changelog/' },
+              { text: 'v1.2.10', link: '/en/changelog/v1.2.10' },
+              { text: 'v1.2.9', link: '/en/changelog/v1.2.9' },
+              { text: 'v1.2.8', link: '/en/changelog/v1.2.8' },
+              { text: 'v1.2.7', link: '/en/changelog/v1.2.7' },
+              { text: 'v1.2.6', link: '/en/changelog/v1.2.6' },
+              { text: 'v1.2.5', link: '/en/changelog/v1.2.5' },
+              { text: 'v1.2.4', link: '/en/changelog/v1.2.4' },
+              { text: 'v1.2.3', link: '/en/changelog/v1.2.3' },
+              { text: 'v1.2.2', link: '/en/changelog/v1.2.2' },
+              { text: 'v1.2.1', link: '/en/changelog/v1.2.1' },
+              { text: 'v1.2.0', link: '/en/changelog/v1.2.0' },
+              { text: 'v1.1.65', link: '/en/changelog/v1.1.65' },
+              { text: 'v1.1.64', link: '/en/changelog/v1.1.64' },
+              { text: 'v1.1.63', link: '/en/changelog/v1.1.63' },
+              { text: 'v1.1.62', link: '/en/changelog/v1.1.62' },
+              { text: 'v1.1.61', link: '/en/changelog/v1.1.61' },
+              { text: 'v1.1.60', link: '/en/changelog/v1.1.60' },
+              { text: 'v1.1.59', link: '/en/changelog/v1.1.59' },
+              { text: 'v1.1.58', link: '/en/changelog/v1.1.58' },
+              { text: 'v1.1.57', link: '/en/changelog/v1.1.57' },
+              { text: 'v1.1.56', link: '/en/changelog/v1.1.56' },
+              { text: 'v1.1.55', link: '/en/changelog/v1.1.55' },
+              { text: 'v1.1.54', link: '/en/changelog/v1.1.54' },
+              { text: 'v1.1.53', link: '/en/changelog/v1.1.53' },
+              { text: 'v1.1.52', link: '/en/changelog/v1.1.52' },
+              { text: 'v1.1.51', link: '/en/changelog/v1.1.51' },
+              { text: 'v1.1.50', link: '/en/changelog/v1.1.50' },
+              { text: 'v1.1.49', link: '/en/changelog/v1.1.49' },
+              { text: 'v1.1.48', link: '/en/changelog/v1.1.48' },
+              { text: 'v1.1.47', link: '/en/changelog/v1.1.47' },
+              { text: 'v1.1.46', link: '/en/changelog/v1.1.46' },
+              { text: 'v1.1.45', link: '/en/changelog/v1.1.45' },
+              { text: 'v1.1.44', link: '/en/changelog/v1.1.44' },
+              { text: 'v1.1.43', link: '/en/changelog/v1.1.43' },
+              { text: 'v1.1.42', link: '/en/changelog/v1.1.42' },
+              { text: 'v1.1.41', link: '/en/changelog/v1.1.41' },
+              { text: 'v1.1.40', link: '/en/changelog/v1.1.40' },
+              { text: 'v1.1.39', link: '/en/changelog/v1.1.39' },
+              { text: 'v1.1.38', link: '/en/changelog/v1.1.38' },
+              { text: 'v1.1.37', link: '/en/changelog/v1.1.37' },
+              { text: 'v1.1.36', link: '/en/changelog/v1.1.36' },
+              { text: 'v1.1.35', link: '/en/changelog/v1.1.35' },
+              { text: 'v1.1.34', link: '/en/changelog/v1.1.34' },
+              { text: 'v1.1.33', link: '/en/changelog/v1.1.33' },
+              { text: 'v1.1.32', link: '/en/changelog/v1.1.32' },
+              { text: 'v1.1.31', link: '/en/changelog/v1.1.31' },
+              { text: 'v1.1.30', link: '/en/changelog/v1.1.30' },
+              { text: 'v1.1.29', link: '/en/changelog/v1.1.29' },
+              { text: 'v1.1.28', link: '/en/changelog/v1.1.28' },
+              { text: 'v1.1.27', link: '/en/changelog/v1.1.27' },
+              { text: 'v1.1.26', link: '/en/changelog/v1.1.26' },
+              { text: 'v1.1.25', link: '/en/changelog/v1.1.25' },
+              { text: 'v1.1.24', link: '/en/changelog/v1.1.24' },
+              { text: 'v1.1.23', link: '/en/changelog/v1.1.23' },
+              { text: 'v1.1.21', link: '/en/changelog/v1.1.21' },
+              { text: 'v1.1.20', link: '/en/changelog/v1.1.20' },
+              { text: 'v1.1.19', link: '/en/changelog/v1.1.19' },
+              { text: 'v1.1.18', link: '/en/changelog/v1.1.18' },
+              { text: 'v1.1.17', link: '/en/changelog/v1.1.17' },
+              { text: 'v1.1.16', link: '/en/changelog/v1.1.16' },
+              { text: 'v1.1.15', link: '/en/changelog/v1.1.15' },
+              { text: 'v1.1.14', link: '/en/changelog/v1.1.14' },
+              { text: 'v1.1.13', link: '/en/changelog/v1.1.13' },
+              { text: 'v1.1.12', link: '/en/changelog/v1.1.12' },
+              { text: 'v1.1.11', link: '/en/changelog/v1.1.11' },
+              { text: 'v1.1.10', link: '/en/changelog/v1.1.10' },
+              { text: 'v1.1.8', link: '/en/changelog/v1.1.8' },
+              { text: 'v1.1.7', link: '/en/changelog/v1.1.7' },
+              { text: 'v1.1.6', link: '/en/changelog/v1.1.6' },
+              { text: 'v1.1.4', link: '/en/changelog/v1.1.4' },
+              { text: 'v1.1.3', link: '/en/changelog/v1.1.3' },
+              { text: 'v1.1.2', link: '/en/changelog/v1.1.2' },
+              { text: 'v1.1.1', link: '/en/changelog/v1.1.1' },
+            ]
+          },
         ],
         footer: {
           message: 'Released under the <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> License. | <a href="/en/privacy">Privacy Policy</a> | © 2024 LearnOpenCode',

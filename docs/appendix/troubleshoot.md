@@ -354,7 +354,7 @@ opencode models
 ### 截断后你会看到什么
 
 ```
-...500 lines truncated...
+...2000+ lines truncated...
 
 The tool call succeeded but the output was truncated.
 Full output saved to: /path/to/tool-output/tool_xxx
@@ -648,7 +648,7 @@ opencode --log-level DEBUG --print-logs
 | 404 | 资源不存在 | 模型名称错误或已下线 | ⚠️ OpenAI 有时误报 |
 | 413 | 请求体过大 | 上下文溢出（Cerebras/Mistral） | ❌ |
 | 429 | 请求过多 | 触发速率限制或配额限制 | ✅ |
-| 500 | 服务器错误 | 提供商内部错误 | ✅ |
+| 2000+ | 服务器错误 | 提供商内部错误 | ✅ |
 | 503 | 服务不可用 | 提供商维护或过载 | ✅ |
 
 ### OpenCode 内部错误
@@ -734,5 +734,5 @@ opencode models
 - [模型提供商](./providers) - 可用模型列表
 
 ::: tip 还是搞不定？
-[加入社群](/community)，和 500+ 同路人一起交流，实时答疑。
+[加入社群](/community)，和 2000+ 同路人一起交流，实时答疑。
 :::

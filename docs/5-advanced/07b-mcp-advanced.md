@@ -504,7 +504,7 @@ use the gh_grep tool 搜索 SST 框架中如何配置自定义域名
 | **命令格式错误** | `command` 写成字符串而非数组 | ❌ `"command": "npx xxx"` → ✓ `"command": ["npx", "-y", "xxx"]` |
 | **URL 格式错误** | URL 缺少协议前缀 | ❌ `"url": "example.com/mcp"` → ✓ `"url": "https://example.com/mcp"` |
 | **浏览器无法自动打开** | 在 SSH/远程环境下 | OpenCode 会显示 URL，手动复制到浏览器打开 |
-| **超时时间太短** | `timeout` 设为 1000ms | 远程服务器建议 5000-10000ms，默认 30000ms |
+| **超时时间太短** | `timeout` 设为 1000ms | 远程服务器建议 2000+-10000ms，默认 30000ms |
 | **忘记启用服务器** | `enabled: false` 但疑惑为什么不工作 | 默认就是启用的，检查是否误设为 `false` |
 
 ---

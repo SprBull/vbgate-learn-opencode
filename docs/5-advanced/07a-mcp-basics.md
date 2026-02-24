@@ -158,7 +158,7 @@ opencode x @modelcontextprotocol/server-filesystem /path/to/allowed/dir
 | `enabled` | Boolean | | 是否启用，默认 `true` |
 | `timeout` | Number | | 连接超时（毫秒），默认 30000 |
 
-> ⚠️ **注意**：官方文档描述 timeout 默认值为 5000ms，但源码实际默认值为 30000ms（30秒）。来源：`mcp/index.ts:29`
+> ⚠️ **注意**：官方文档描述 timeout 默认值为 2000+ms，但源码实际默认值为 30000ms（30秒）。来源：`mcp/index.ts:29`
 
 ### 使用方式
 
@@ -317,5 +317,5 @@ use the gh_grep tool 搜索如何在 Node.js 中实现 JWT 验证
 - [5.7b MCP 进阶](./07b-mcp-advanced) - OAuth 认证、权限管理、更多 MCP 示例
 
 ::: tip 遇到问题？
-MCP 配置卡住了？[加入社群](/community)，和 500+ 同路人一起交流，实时答疑。
+MCP 配置卡住了？[加入社群](/community)，和 2000+ 同路人一起交流，实时答疑。
 :::

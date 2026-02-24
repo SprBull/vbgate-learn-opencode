@@ -1,17 +1,21 @@
 ---
 title: 加入社群
-description: 加入 OpenCode 中文学习群，与 500+ 同路人一起交流 AI 编程经验，获取最新教程更新和独家资源。
+description: 加入 OpenCode 中文学习群，与 2000+ 同路人一起交流 AI 编程经验，获取最新教程更新和独家资源。
 ---
 
 # 加入社群
 
 <div class="community-hero">
-  <p class="community-tagline">和 500+ 同路人一起，用 AI 干实际工作</p>
+  <p class="community-tagline">和 2000+ 同路人一起，用 AI 干实际工作</p>
 </div>
 
 ## 扫码加入
 
 <div class="qrcode-section">
+  <div class="qrcode-card">
+    <img src="/images/official-account.png" alt="公众号二维码" class="qrcode-image" />
+    <p class="qrcode-hint">关注公众号，获取最新教程</p>
+  </div>
   <div class="qrcode-card">
     <img src="/images/wechat-qrcode.png" alt="微信二维码" class="qrcode-image" />
     <p class="qrcode-hint">微信扫码添加，备注「OpenCode」拉你入群</p>
@@ -76,11 +80,19 @@ description: 加入 OpenCode 中文学习群，与 500+ 同路人一起交流 AI
 }
 
 .qrcode-section {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
   padding: 2rem 0;
-  flex-wrap: wrap;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+  .qrcode-section {
+    grid-template-columns: 1fr;
+    max-width: 320px;
+  }
 }
 
 .qrcode-card {

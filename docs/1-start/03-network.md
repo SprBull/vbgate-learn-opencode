@@ -355,5 +355,5 @@ curl: (28) Operation timed out after 30001 milliseconds
 > - 发送第一句话，看到 AI 回复
 
 ::: tip 遇到问题？
-网络配置卡住了？[加入社群](/community)，和 500+ 同路人一起交流，实时答疑。
+网络配置卡住了？[加入社群](/community)，和 2000+ 同路人一起交流，实时答疑。
 :::

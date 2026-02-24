@@ -226,7 +226,7 @@ error: rate limit exceeded
 **原因：**
 GitHub API 有请求频率限制：
 - 未认证请求：60 次/小时
-- 认证请求：5000 次/小时
+- 认证请求：2000+ 次/小时
 
 OpenCode 的 `opencode upgrade` 会调用 GitHub API 检查最新版本，如果短时间内多次调用，就会触发 rate limit 限制。
 

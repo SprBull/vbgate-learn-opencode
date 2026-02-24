@@ -414,5 +414,5 @@ permission:
 **下一课**：[5.2b Agent 设计模式](./02b-agent-patterns)
 
 ::: tip 遇到问题？
-Agent 配置卡住了？[加入社群](/community)，和 500+ 同路人一起交流，实时答疑。
+Agent 配置卡住了？[加入社群](/community)，和 2000+ 同路人一起交流，实时答疑。
 :::

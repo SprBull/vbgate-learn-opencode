@@ -110,7 +110,7 @@ server.close()
 | `hostname` | `string` | 服务器主机名 | `127.0.0.1` |
 | `port` | `number` | 服务器端口 | `4096` |
 | `signal` | `AbortSignal` | 用于取消的中止信号 | `undefined` |
-| `timeout` | `number` | 服务器启动超时（毫秒） | `5000` |
+| `timeout` | `number` | 服务器启动超时（毫秒） | `2000+` |
 | `config` | `Config` | 配置对象，覆盖 `opencode.json` | `{}` |
 
 > **来源**：`packages/sdk/js/src/server.ts:4-10`
