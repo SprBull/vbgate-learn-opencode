@@ -32,9 +32,11 @@ prerequisite:
 
 ## 学完你能做什么
 
-- 安装和配置插件
+- 安装和配置插件（npm 包和本地插件）
+- 配置本地开发中的插件（绝对路径方式）
 - 创建简单的本地插件
-- 理解插件加载机制
+- 理解插件加载机制和导出规范
+- 调试插件加载问题
 
 ---
 
@@ -84,6 +86,30 @@ prerequisite:
 ```
 
 支持普通包和作用域包（`@scope/package`）。
+
+### 从本地路径加载（开发模式）
+
+如果你在本地开发插件，可以直接在配置文件中指定插件的绝对路径：
+
+```jsonc
+// opencode.json
+{
+  "plugin": [
+    "/home/user/my-plugins/custom-tool/dist/index.js"
+  ]
+}
+```
+
+**注意**：
+- 使用**绝对路径**，指向编译后的 `.js` 文件
+- **不需要** `file://` 前缀
+- 路径要指向**具体的 .js 文件**，不是目录
+
+| ❌ 错误写法 | ✅ 正确写法 |
+|-----------|-----------|
+| `"file:///home/user/my-plugin"` | `"/home/user/my-plugin/dist/index.js"` |
+| `"/home/user/my-plugin"` | `"/home/user/my-plugin/dist/index.js"` |
+| `"/home/user/my-plugin/dist"` | `"/home/user/my-plugin/dist/index.js"` |
 
 ---
 
@@ -184,6 +210,29 @@ export const MyPlugin: Plugin = async ({ project, client, $, directory, worktree
 
 插件包会在启动时自动安装到 `.opencode/node_modules/`。
 
+### 插件导出规范（重要！）
+
+插件**只能导出 default 函数**，不要导出其他变量或函数：
+
+```ts
+// ✅ 正确：只导出 default
+export default MyPlugin;
+
+// ❌ 错误：同时导出其他内容
+export default MyPlugin;
+export { getConfig, DEFAULT_CONFIG };  // 会导致加载失败！
+```
+
+**原因**：OpenCode 会把模块的**所有导出**都当作插件函数调用。如果导出了非函数值（如对象、常量），会报错：
+
+```
+ERROR: fn is not a function. (In 'fn(input)', 'fn' is an instance of Object)
+```
+
+如果你需要在外部使用插件的配置或工具函数，应该：
+- 把它们放在单独的文件中导出
+- 或通过插件的 `config` 钩子动态注册
+
 ---
 
 ## 简单示例
@@ -255,6 +304,29 @@ export const MyPlugin = async ({ client }) => {
 | TypeScript 类型错误 | 插件包未安装 | OpenCode 启动后会自动安装，或手动运行 `bun add @opencode-ai/plugin` |
 | 插件重复执行 | 同时使用 npm 和本地插件 | 检查配置文件和插件目录是否有重复 |
 | 环境变量未生效 | 本地插件无法访问外部包 | 在 `.opencode/package.json` 中声明依赖 |
+| `fn is not a function` | 插件导出了多个非函数值 | 只保留 `export default`，移除其他导出 |
+| 本地插件路径无效 | 路径写法错误 | 使用绝对路径指向 `.js` 文件，不要用目录 |
+
+### 调试插件加载
+
+如果插件没有正常工作，可以用 debug 模式查看加载日志：
+
+```bash
+# 查看插件加载和错误信息
+opencode run "test" --log-level DEBUG --print-logs 2>&1 | grep -E "(plugin\|error)"
+```
+
+正常加载的输出示例：
+```
+INFO service=plugin path=file:///home/user/my-plugin/dist/index.js loading plugin
+INFO service=tool.registry status=started my_custom_tool
+INFO service=tool.registry status=completed my_custom_tool
+```
+
+加载失败的输出示例：
+```
+ERROR service=plugin path=file:///home/user/my-plugin/dist/index.js error=fn is not a function
+```
 
 ---
 
@@ -262,10 +334,12 @@ export const MyPlugin = async ({ client }) => {
 
 你学会了：
 
-1. 两种加载插件的方式（本地文件 / npm 包）
-2. 插件的加载顺序和去重机制
-3. 创建简单插件的基本结构
-4. 使用 `event` 和 `tool.execute.before` 钩子
+1. 三种加载插件的方式（本地目录 / 本地路径 / npm 包）
+2. 本地开发插件的正确配置方法（绝对路径指向 .js 文件）
+3. 插件的加载顺序和去重机制
+4. 创建简单插件的基本结构和导出规范
+5. 使用 `event` 和 `tool.execute.before` 钩子
+6. 调试插件加载问题的方法
 
 ---
 
