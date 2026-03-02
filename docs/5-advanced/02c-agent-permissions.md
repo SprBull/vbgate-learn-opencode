@@ -108,8 +108,11 @@ Agent 级别 permission
 | `codesearch` | 查询字符串 | 代码搜索 |
 | `external_directory` | - | 访问项目目录之外的路径 |
 | `doom_loop` | - | 检测重复调用（同一工具连续调用 3 次相同输入） |
+| `question` | - | 向用户提问（默认 deny，防止 subagent 打扰用户） |
+| `plan_enter` | - | 进入计划模式（代码已弃用） |
+| `plan_exit` | - | 退出计划模式，切换到 build agent |
 
-> 来源：`config.ts:418-447`
+> 来源：`config.ts:614-645`
 
 ---
 
@@ -475,15 +478,15 @@ OpenCode 默认配置了一些安全规则：
   "permission": {
     "read": {
       "*": "allow",
-      "*.env": "deny",          // .env 文件禁止读取
-      "*.env.*": "deny",        // .env.xxx 也禁止
+      "*.env": "ask",           // .env 文件需确认（安全考虑）
+      "*.env.*": "ask",         // .env.xxx 也需确认
       "*.env.example": "allow"  // 示例文件允许
     }
   }
 }
 ```
 
-> 来源：`agent.ts:51-56`
+> 来源：`agent.ts:67-72`
 
 ### doom_loop 检测
 
@@ -497,6 +500,31 @@ OpenCode 默认配置了一些安全规则：
 }
 ```
 
+### question 权限
+
+控制 Agent 是否能使用 question 工具向用户提问。
+
+| 默认值 | 说明 |
+|--------|------|
+| subagent: `deny` | 防止 subagent 随意打扰用户 |
+| build agent: `allow` | 主 Agent 可以提问 |
+
+**使用场景**：当你需要 subagent 在遇到不确定时向你确认，可以设为 `allow`。
+
+```jsonc
+{
+  "agent": {
+    "interactive-helper": {
+      "permission": {
+        "question": "allow"    // 允许这个 subagent 提问
+      }
+    }
+  }
+}
+```
+
+> 来源：`agent.ts:56-64`, `question.ts`
+
 ### external_directory 保护
 
 当 Agent 尝试访问项目目录之外的路径时：
@@ -508,6 +536,71 @@ OpenCode 默认配置了一些安全规则：
   }
 }
 ```
+
+### plan_enter / plan_exit 权限
+
+控制 Agent 是否能切换计划模式：
+
+- **`plan_enter`**：进入计划模式（代码已实现但被注释弃用，计划模式通过 `/plan` 命令触发）
+- **`plan_exit`**：退出计划模式，切换到 build agent
+
+默认值均为 `deny`，只有 build agent 和 plan agent 允许调用。
+
+```jsonc
+{
+  "agent": {
+    "build": {
+      "permission": {
+        "plan_enter": "allow",   // build agent 允许切换到 plan
+        "plan_exit": "deny"      // 不允许退出（只有 plan agent 可以）
+      }
+    }
+  }
+}
+```
+
+> 来源：`agent.ts:56-65`, `plan.ts`
+
+### 废弃字段：tools
+
+⚠️ **`tools` 字段已废弃**，请使用 `permission` 字段代替。
+
+**旧写法（已废弃）**：
+
+```jsonc
+{
+  "agent": {
+    "my-agent": {
+      "tools": {
+        "bash": false,      // 禁用 bash
+        "edit": true        // 允许编辑
+      }
+    }
+  }
+}
+```
+
+**新写法**：
+
+```jsonc
+{
+  "agent": {
+    "my-agent": {
+      "permission": {
+        "bash": "deny",     // 禁用 bash
+        "edit": "allow"     // 允许编辑
+      }
+    }
+  }
+}
+```
+
+**迁移说明**：
+- `tools` 中的 `write`/`edit`/`patch`/`multiedit` 都映射到 `edit` 权限
+- `true` → `"allow"`，`false` → `"deny"`
+- 系统会自动转换旧配置，但建议手动更新
+
+> 来源：`config.ts:675-737`
 
 ### 子代理的隐式限制
 
@@ -674,7 +767,7 @@ permission:
 | 权限不生效 | 规则顺序错误 | `*` 放最前面，具体规则放后面 |
 | subagent 仍能被调用 | 用户 @ 调用不受限 | task 权限只影响 Task tool |
 | bash 命令匹配失败 | 匹配的是解析后的命令 | 检查实际命令格式（含参数） |
-| .env 仍能读取 | 自定义规则覆盖了默认 | 记得保留 .env deny 规则 |
+| .env 无需确认就读取 | 自定义规则覆盖了默认 | 如需保护，设为 .env ask |
 | 权限太严格 | 设了 `*: deny` 忘了允许必要的 | 逐条添加允许规则 |
 
 ---
@@ -692,7 +785,7 @@ permission:
 你学会了：
 
 1. **权限系统架构**：三种动作、配置层级、最后匹配获胜
-2. **12+ 权限类型**：bash、edit、task、skill 等
+2. **15+ 权限类型**：bash、edit、task、skill、question、plan_enter、plan_exit 等
 3. **细粒度控制**：使用对象语法和通配符
 4. **TaskTool 机制**：子代理调用、参数定义、执行流程
 5. **子代理限制**：todowrite/todoread/task 禁用，防止无限递归
