@@ -451,7 +451,7 @@ steps: 5  # 只执行 5 步就停止
 | 透传参数不生效 | provider 不支持 | 查阅 provider 文档确认 |
 | 嵌套目录 Agent 找不到 | 路径格式错误 | 使用 / 分隔符：`folder/agent` |
 | MCP 工具权限无效 | 通配符匹配失败 | 确认工具名前缀匹配 |
-| temperature 无效 | 某些模型不支持/有固定值 | 检查模型文档 |
+| temperature 无效 | 模型不支持或 `capabilities.temperature = false` | 检查模型文档，某些推理模型（如 Codex）不支持 temperature |
 | description 没效果 | 内容太泛 | 具体说明**何时**使用这个 Agent |
 | 自动选择错误 Agent | description 相似 | 让每个 Agent 的描述有明确区分 |
 | hidden Agent 仍显示 | mode 不是 subagent | hidden 只对 subagent 有效 |

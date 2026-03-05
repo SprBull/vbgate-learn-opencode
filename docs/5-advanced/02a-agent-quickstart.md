@@ -260,6 +260,30 @@ permission:
 
 > `maxSteps` 已废弃，请使用 `steps`。
 
+### Temperature 默认值（重要）
+
+不同模型有不同的默认温度：
+
+| 模型 | 默认 Temperature | 说明 |
+|------|-----------------|------|
+| Claude | undefined | 使用 API 默认 |
+| GPT | undefined | 使用 API 默认 |
+| Gemini | 1.0 | 固定值 |
+| Qwen | 0.55 | 固定值 |
+| GLM-4.6/4.7 | 1.0 | 固定值 |
+| MiniMax-M2 | 1.0 | 固定值 |
+| Kimi-K2 | 0.6 或 1.0 | thinking/k2./k2p 版本为 1.0，其他为 0.6 |
+
+**优先级**：
+```
+agent.temperature（用户设置） > 模型默认值 > undefined
+```
+
+**注意事项**：
+- 只有 `capabilities.temperature = true` 的模型才会生效
+- 某些推理模型（如 Codex）不支持 temperature
+- 设置无效时检查模型文档确认是否支持
+
 ---
 
 ## 系统提示词的工作原理（重要）
