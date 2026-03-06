@@ -184,8 +184,37 @@ OpenCode 按以下顺序查找认证：
 2. **auth.json 文件**（`~/.local/share/opencode/auth.json`）
 3. **配置文件**中的认证信息
 
-::: tip 提示
-凭证存储位置：`~/.local/share/opencode/auth.json`（所有平台统一，遵循 XDG 规范）
+::: tip 环境变量自动检测
+OpenCode **启动时会自动扫描系统环境变量**，发现可用的 API Key 后自动启用对应的模型提供商。也就是说，只要你在系统里设了环境变量，不用在配置文件里写任何东西，OpenCode 就能识别。
+
+**各提供商对应的环境变量名**：
+
+| 提供商 | 环境变量名 |
+|--------|-----------|
+| Anthropic (Claude) | `ANTHROPIC_API_KEY` |
+| OpenAI (GPT) | `OPENAI_API_KEY` |
+| DeepSeek | `DEEPSEEK_API_KEY` |
+| Google (Gemini) | `GOOGLE_GENERATIVE_AI_API_KEY` 或 `GEMINI_API_KEY` |
+
+**设置方法**（以 Anthropic 为例）：
+
+```bash
+# macOS / Linux（临时，当前终端有效）
+export ANTHROPIC_API_KEY=sk-ant-api03-xxxxx
+
+# macOS / Linux（永久，写入 ~/.zshrc 或 ~/.bashrc）
+echo 'export ANTHROPIC_API_KEY=sk-ant-api03-xxxxx' >> ~/.zshrc
+source ~/.zshrc
+
+# Windows PowerShell（永久）
+[System.Environment]::SetEnvironmentVariable("ANTHROPIC_API_KEY", "sk-ant-api03-xxxxx", "User")
+```
+
+设置后重启 OpenCode，输入 `/models` 就能看到对应提供商的模型了。
+:::
+
+::: info 凭证存储位置
+`~/.local/share/opencode/auth.json`（所有平台统一，遵循 XDG 规范）
 :::
 
 ---

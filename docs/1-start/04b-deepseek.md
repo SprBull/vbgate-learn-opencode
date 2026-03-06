@@ -103,6 +103,10 @@ opencode
 
 能收到回复就说明连接成功。
 
+::: info 💡 环境变量自动检测
+如果你已经在系统环境变量里设置了 `DEEPSEEK_API_KEY`，OpenCode 启动时会自动识别并启用 DeepSeek 提供商，不需要运行 `/connect` 或编辑配置文件。输入 `/models` 即可看到 DeepSeek 的模型列表。
+:::
+
 ---
 
 ## 检查点 ✅
