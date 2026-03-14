@@ -345,6 +345,7 @@ export default defineConfig({
             items: [
               { text: '5.7a MCP 基础', link: '/5-advanced/07a-mcp-basics' },
               { text: '5.7b MCP 进阶', link: '/5-advanced/07b-mcp-advanced' },
+              { text: '5.7c AI 控制浏览器', link: '/5-advanced/07c-mcp-chrome-devtools' },
             ]
           },
           {
