@@ -286,6 +286,13 @@ Agents can be organized in subdirectories:
 └── translator.md         → Name: translator
 ```
 
+::: tip 💡 Invocation Method
+- **Without `name` field**: The system automatically uses the full path as the agent name, such as `review/security`. Call it with `@review/security`
+- **With `name` field**: Overrides the auto-generated name. For example, if you set `name: security`, call it with `@security`
+
+**Recommended**: Don't set the `name` field in frontmatter for nested agents, so the system automatically generates names with paths.
+:::
+
 Usage:
 
 ```
@@ -449,7 +456,7 @@ steps: 5  # Stop after just 5 steps
 | Agent ignores instructions | Prompt too long/vague | Simplify core rules, use structured format |
 | Agent loops calling subagent | No stop condition | Set steps limit or task deny |
 | Passthrough parameter not working | Provider doesn't support | Check provider documentation |
-| Nested directory Agent not found | Path format error | Use / separator: `folder/agent` |
+| Nested directory Agent not found | Path format error or name overridden | Use / separator: `folder/agent`; Check if `name` field is set in frontmatter |
 | MCP tool permission ineffective | Wildcard match failed | Confirm tool name prefix matches |
 | temperature not working | Some models don't support/have fixed value | Check model documentation |
 | description not effective | Content too generic | Specifically state **when** to use this Agent |

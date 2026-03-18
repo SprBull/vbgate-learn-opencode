@@ -423,7 +423,14 @@ permission:
       └── backend.md
 ```
 
-这样可以通过 `@writing/novelist` 或 `@coding/frontend` 来调用。
+::: tip 💡 调用方式说明
+- **不设置 name 字段**：系统会自动使用完整路径作为 agent 名称，如 `writing/novelist`，调用方式为 `@writing/novelist`
+- **设置 name 字段**：会覆盖自动生成的名称，如设置 `name: novelist`，调用方式为 `@novelist`
+
+**推荐做法**：嵌套目录的 agent 不要在 frontmatter 中设置 `name` 字段，让系统自动生成包含路径的名称，这样可以更好地组织和管理多个 agent。
+:::
+
+这样可以通过 `@writing/novelist` 或 `@coding/frontend` 来调用（前提是 frontmatter 中没有设置 `name` 字段）。
 
 ---
 

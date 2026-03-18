@@ -391,7 +391,7 @@ Which primary agent to use by default when starting OpenCode:
 | description required error | Version issue | Actually optional, but recommended to fill |
 | maxSteps not working | Deprecated | Use `steps` instead |
 | color format error | Not hexadecimal | Use `#RRGGBB` format |
-| Nested directory Agent name | Don't know how to call | Name includes path: `folder/agent-name` |
+| Nested directory Agent name | Don't know how to call | If no `name` set, name includes path: `folder/agent-name`; if `name` set, it overrides the default name |
 
 ---
 

@@ -286,6 +286,13 @@ Agent 可以放在子目录中组织：
 └── translator.md         → 名称: translator
 ```
 
+::: tip 💡 调用方式说明
+- **不设置 name 字段**：系统会自动使用完整路径作为 agent 名称，如 `review/security`，调用方式为 `@review/security`
+- **设置 name 字段**：会覆盖自动生成的名称，如设置 `name: security`，调用方式为 `@security`
+
+**推荐做法**：嵌套目录的 agent 不要在 frontmatter 中设置 `name` 字段，让系统自动生成包含路径的名称。
+:::
+
 调用方式：
 
 ```
@@ -449,7 +456,7 @@ steps: 5  # 只执行 5 步就停止
 | Agent 不遵守指令 | prompt 太长/模糊 | 精简核心规则，使用结构化格式 |
 | Agent 循环调用 subagent | 没有停止条件 | 设置 steps 限制或 task deny |
 | 透传参数不生效 | provider 不支持 | 查阅 provider 文档确认 |
-| 嵌套目录 Agent 找不到 | 路径格式错误 | 使用 / 分隔符：`folder/agent` |
+| 嵌套目录 Agent 找不到 | 路径格式错误或 name 被覆盖 | 使用 / 分隔符：`folder/agent`；检查 frontmatter 中是否设置了 `name` 字段 |
 | MCP 工具权限无效 | 通配符匹配失败 | 确认工具名前缀匹配 |
 | temperature 无效 | 模型不支持或 `capabilities.temperature = false` | 检查模型文档，某些推理模型（如 Codex）不支持 temperature |
 | description 没效果 | 内容太泛 | 具体说明**何时**使用这个 Agent |

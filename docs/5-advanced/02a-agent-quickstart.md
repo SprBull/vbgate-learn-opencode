@@ -541,7 +541,7 @@ Working directory: /path/to/project         ← 环境信息
 | description 报必填错误 | 版本问题 | 实际是可选的，建议还是填写 |
 | maxSteps 不生效 | 已废弃 | 使用 `steps` 替代 |
 | color 格式错误 | 不是十六进制 | 使用 `#RRGGBB` 格式 |
-| 嵌套目录 Agent 名称 | 不知道怎么调用 | 名称包含路径：`folder/agent-name` |
+| 嵌套目录 Agent 名称 | 不知道怎么调用 | 不设置 `name` 时名称包含路径：`folder/agent-name`；设置 `name` 后会覆盖默认名称 |
 
 ---
 

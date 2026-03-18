@@ -535,4 +535,10 @@ use the gh_grep tool 搜索 SST 框架中如何配置自定义域名
 
 ## 下一课预告
 
-> 下一课我们将学习 IDE 集成，让 OpenCode 与 VS Code、JetBrains 等编辑器无缝协作。
+> 下一课我们将学习 **[Chrome DevTools MCP](./07c-mcp-chrome-devtools)**。
+>
+> 你会学到：
+> - 让 AI 直接连接你的 Chrome 浏览器
+> - 调试已登录的页面（无需重新登录）
+> - 在 DevTools 中选中元素/请求让 AI 分析
+> - 使用浏览器截图、执行脚本等功能

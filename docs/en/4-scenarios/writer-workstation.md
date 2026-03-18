@@ -423,7 +423,14 @@ You can organize agents in subfolders, for example:
       └── backend.md
 ```
 
-Then call them via `@writing/novelist` or `@coding/frontend`.
+::: tip 💡 Invocation Method
+- **Without `name` field**: The system automatically uses the full path as the agent name, such as `writing/novelist`. Call it with `@writing/novelist`
+- **With `name` field**: Overrides the auto-generated name. For example, if you set `name: novelist`, call it with `@novelist`
+
+**Recommended**: Don't set the `name` field in frontmatter for nested agents, so the system automatically generates names with paths for better organization.
+:::
+
+Then call them via `@writing/novelist` or `@coding/frontend` (assuming the `name` field is not set in frontmatter).
 
 ---
 
