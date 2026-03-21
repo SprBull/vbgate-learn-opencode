@@ -399,6 +399,7 @@ export default defineConfig({
           { text: '5.22 调试与诊断', link: '/5-advanced/22-debugging' },
           { text: '5.23 网络搜索与获取', link: '/5-advanced/23-web-search' },
           { text: '5.24 CLI 自动化', link: '/5-advanced/24-cli-automation' },
+          { text: '5.25 Git Worktree', link: '/5-advanced/25-git-worktree' },
         ]
       },
       {
